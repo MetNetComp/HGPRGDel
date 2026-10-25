@@ -1,0 +1,196 @@
+# HGPRGDel Configuration File
+# ===========================
+
+# Data Configuration
+data:
+  data_path: "Data/e_coli_core"
+  supported_models: ["e_coli_core", "iML1515", "iMM904"]
+  gene_aa_dir: "Gene_AA"
+  label_dir: "Label"
+  results_dir: "Results"
+  target_metabolites_file: "Target metabolites_smile.csv"
+  model_json_file: "e_coli_core.json"
+
+# Model Configuration
+model:
+  # Gene Learning Module
+  gene_module:
+    feature_dim: 320
+    use_esm: true
+    esm_model_name: "esm2_t6_8M_UR50D"
+    bert_model_name: "bert-base-uncased"
+    dropout: 0.0
+  
+  # Metabolite Learning Module
+  metabolite_module:
+    feature_dim: 256
+    use_chemberta: true
+    chemberta_model_name: "DeepChem/ChemBERTa-77M-MLM"
+    rdkit_fp_size: 2048
+    dropout: 0.0
+  
+  # Downstream Classifier
+  classifier:
+    hidden_dims: [512, 256, 128]
+    dropout: 0.0
+    activation: "relu"
+    output_dim: 1
+
+# Training Configuration
+training:
+  # Basic training parameters
+  batch_size: 32
+  num_epochs: 10
+  learning_rate: 1e-4
+  weight_decay: 1e-5
+  
+  # Cross-validation
+  num_folds: 5
+  random_seed: 42
+  
+  # Optimization
+  optimizer: "adam"
+  scheduler: "cosine"
+  warmup_steps: 100
+  gradient_clip: 1.0
+  
+  # Loss function
+  loss_function: "bce"
+  class_weights: [1.0, 1.0]  # [keep_weight, delete_weight]
+  
+  # Early stopping
+  early_stopping: true
+  patience: 5
+  min_delta: 1e-4
+
+# Device Configuration
+device:
+  device: "auto"  # "auto", "cpu", "cuda", "mps"
+  num_workers: 4
+  pin_memory: true
+
+# Logging Configuration
+logging:
+  log_dir: "logs"
+  experiment_name: "hgprgdel_experiment"
+  log_level: "INFO"
+  save_checkpoints: true
+  checkpoint_freq: 5
+  tensorboard: true
+  wandb: false
+  wandb_project: "hgprgdel"
+  wandb_entity: null
+
+# Output Configuration
+output:
+  model_path: "models/hgprgdel_model.sav"
+  results_path: "runs/{experiment_name}/all_metabolites_predictions.csv"
+  save_predictions: true
+  save_metrics: true
+  metrics_file: "metrics.json"
+  confusion_matrix: true
+  roc_curve: true
+
+# Evaluation Configuration
+evaluation:
+  metrics: ["accuracy", "precision", "recall", "f1", "auc"]
+  threshold: 0.5
+  per_metabolite: true
+  per_gene: false
+  cross_validation: true
+
+# Language Model Configuration
+language_models:
+  # ESM-2 Configuration
+  esm:
+    model_name: "esm2_t6_8M_UR50D"
+    max_length: 1024
+    repr_layers: [6]
+    use_cache: true
+  
+  # BERT Configuration
+  bert:
+    model_name: "bert-base-uncased"
+    max_length: 100
+    truncation: true
+    padding: true
+  
+  # ChemBERTa Configuration
+  chemberta:
+    model_name: "DeepChem/ChemBERTa-77M-MLM"
+    max_length: 512
+    truncation: true
+    padding: true
+  
+  # RDKit Configuration
+  rdkit:
+    fp_type: "morgan"
+    fp_size: 2048
+    radius: 2
+
+# Data Processing Configuration
+data_processing:
+  # Gene sequence processing
+  gene:
+    max_length: 1000
+    padding: true
+    truncation: true
+    unknown_token: "X"
+  
+  # Metabolite SMILES processing
+  metabolite:
+    max_length: 512
+    padding: true
+    truncation: true
+    canonicalize: true
+  
+  # Label processing
+  label:
+    binary_threshold: 0.5
+    balance_classes: false
+    oversample_minority: false
+
+# Experiment Configuration
+experiment:
+  # Experiment tracking
+  track_experiments: true
+  experiment_dir: "experiments"
+  save_config: true
+  save_code: true
+  
+  # Reproducibility
+  deterministic: true
+  benchmark: false
+  
+  # Hyperparameter search
+  hyperparameter_search: false
+  search_method: "random"  # "random", "grid", "bayesian"
+  n_trials: 10
+  search_space:
+    learning_rate: [1e-5, 1e-3]
+    batch_size: [16, 64]
+    hidden_dims: [[256, 128], [512, 256, 128]]
+
+# Performance Configuration
+performance:
+  # Memory optimization
+  gradient_accumulation_steps: 1
+  mixed_precision: false
+  memory_efficient: false
+  
+  # Speed optimization
+  compile_model: false  # PyTorch 2.0+ feature
+  jit_script: false
+  
+  # Parallel processing
+  ddp: false  # Distributed Data Parallel
+  world_size: 1
+  rank: 0
+
+# Debug Configuration
+debug:
+  debug_mode: false
+  verbose: false
+  profile: false
+  save_intermediate: false
+  max_samples: null  # Limit dataset size for debugging

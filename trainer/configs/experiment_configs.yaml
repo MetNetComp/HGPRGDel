@@ -1,0 +1,199 @@
+# HGPRGDel Experiment Configurations
+# ===================================
+
+# Default configuration (baseline)
+default:
+  training:
+    batch_size: 32
+    num_epochs: 10
+    learning_rate: 1e-4
+    num_folds: 5
+  
+  model:
+    gene_module:
+      feature_dim: 320
+      use_esm: true
+    metabolite_module:
+      feature_dim: 256
+      use_chemberta: true
+    classifier:
+      hidden_dims: [512, 256, 128]
+
+# Fast training configuration (for quick experiments)
+fast:
+  training:
+    batch_size: 64
+    num_epochs: 5
+    learning_rate: 2e-4
+    num_folds: 3
+  
+  debug:
+    max_samples: 1000
+    debug_mode: true
+
+# High performance configuration (for best results)
+high_performance:
+  training:
+    batch_size: 16
+    num_epochs: 20
+    learning_rate: 5e-5
+    num_folds: 5
+    early_stopping: true
+    patience: 10
+  
+  model:
+    gene_module:
+      feature_dim: 512
+      use_esm: true
+    metabolite_module:
+      feature_dim: 512
+      use_chemberta: true
+    classifier:
+      hidden_dims: [1024, 512, 256, 128]
+      dropout: 0.0
+  
+  performance:
+    mixed_precision: true
+    gradient_accumulation_steps: 2
+
+# BERT-only configuration (when ESM-2 is not available)
+bert_only:
+  model:
+    gene_module:
+      use_esm: false
+      feature_dim: 320
+    metabolite_module:
+      use_chemberta: false
+      feature_dim: 256
+  
+  training:
+    batch_size: 32
+    num_epochs: 15
+    learning_rate: 1e-4
+
+# Lightweight configuration (for limited resources)
+lightweight:
+  training:
+    batch_size: 16
+    num_epochs: 8
+    learning_rate: 1e-4
+    num_folds: 3
+  
+  model:
+    gene_module:
+      feature_dim: 128
+      use_esm: false
+    metabolite_module:
+      feature_dim: 128
+      use_chemberta: false
+    classifier:
+      hidden_dims: [256, 128]
+      dropout: 0.0
+  
+  device:
+    num_workers: 2
+
+# Production configuration (for deployment)
+production:
+  training:
+    batch_size: 32
+    num_epochs: 15
+    learning_rate: 1e-4
+    num_folds: 5
+    early_stopping: true
+    patience: 7
+  
+  logging:
+    wandb: true
+    save_checkpoints: true
+    checkpoint_freq: 3
+  
+  evaluation:
+    per_metabolite: true
+    per_gene: true
+    confusion_matrix: true
+    roc_curve: true
+
+# Hyperparameter search configurations
+hyperparameter_search:
+  # Learning rate search
+  lr_search:
+    training:
+      learning_rate: [1e-5, 5e-5, 1e-4, 5e-4, 1e-3]
+      batch_size: 32
+      num_epochs: 5
+      num_folds: 3
+  
+  # Architecture search
+  architecture_search:
+    model:
+      classifier:
+        hidden_dims: 
+          - [256, 128]
+          - [512, 256, 128]
+          - [1024, 512, 256, 128]
+          - [512, 256, 128, 64]
+    training:
+      batch_size: 32
+      num_epochs: 8
+      learning_rate: 1e-4
+      num_folds: 3
+  
+  # Batch size search
+  batch_size_search:
+    training:
+      batch_size: [8, 16, 32, 64, 128]
+      num_epochs: 5
+      learning_rate: 1e-4
+      num_folds: 3
+
+# Model-specific configurations
+model_specific:
+  # E. coli core model
+  e_coli_core:
+    data:
+      data_path: "Data/e_coli_core"
+    training:
+      batch_size: 32
+      num_epochs: 10
+  
+  # iML1515 model
+  iML1515:
+    data:
+      data_path: "Data/iML1515"
+    training:
+      batch_size: 16
+      num_epochs: 12
+  
+  # iMM904 model
+  iMM904:
+    data:
+      data_path: "Data/iMM904"
+    training:
+      batch_size: 16
+      num_epochs: 12
+
+# Debug configurations
+debug:
+  # Quick debug
+  quick:
+    training:
+      batch_size: 8
+      num_epochs: 2
+      num_folds: 2
+    debug:
+      max_samples: 100
+      debug_mode: true
+      verbose: true
+  
+  # Full debug
+  full:
+    training:
+      batch_size: 16
+      num_epochs: 3
+      num_folds: 2
+    debug:
+      max_samples: 500
+      debug_mode: true
+      save_intermediate: true
+      profile: true

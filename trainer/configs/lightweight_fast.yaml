@@ -1,0 +1,18 @@
+# Lightweight fast config - faster training, non-trivial model
+# Moderate dim reduction, higher lr, fewer folds (fast iteration preset)
+
+model:
+  gene_dim: 128
+  metabolite_dim: 128
+  hypergraph_conv_dim: 64
+  hypergraph_num_layers: 1
+  gpr_assoc_dim: 64
+  hidden_dim: 128
+  dropout: 0.0
+
+training:
+  batch_size: 16
+  num_epochs: 20
+  learning_rate: 0.0003
+  num_folds: 5
+  early_stopping_patience: 5
